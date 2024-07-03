@@ -33,6 +33,7 @@ base_chk1 = pd.read_json(url_teste)
 base_chk1 = pd.json_normalize(base_chk1['value'])
 base_chk = pd.DataFrame(base_chk1)
 
+dia_atraso = 1
 
 if base_chk.empty:
     messagebox.showinfo(title = "Sem atualização ainda", message = "Boletim diário ainda não foi divulgado pelo BACEN")
