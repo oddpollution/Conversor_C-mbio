@@ -10,7 +10,7 @@ from tkinter import messagebox
 from IPython.display import HTML
 import webbrowser
 import os
-from datetime import datetime
+from datetime import datetime, timedelta
 
 #### BASES ####
 
@@ -24,6 +24,28 @@ base_Moedas = pd.DataFrame(base_Moedas1)
 
 base_Moedas_sigla = list(set(base_Moedas["simbolo"]))
 base_Moedas_sigla.sort()
+
+#### ERROR HANDLER ####
+
+url_teste = "https://olinda.bcb.gov.br/olinda/servico/PTAX/versao/v1/odata/CotacaoMoedaDia(moeda='USD',dataCotacao='" + dataHoje + "')?&$top=100&$format=json&$select=paridadeCompra,paridadeVenda,cotacaoCompra,cotacaoVenda,dataHoraCotacao,tipoBoletim"
+
+base_chk1 = pd.read_json(url_teste)
+base_chk1 = pd.json_normalize(base_chk1['value'])
+base_chk = pd.DataFrame(base_chk1)
+
+
+if base_chk.empty:
+    messagebox.showinfo(title = "Sem atualização ainda", message = "Boletim diário ainda não foi divulgado pelo BACEN")
+    while base_chk.empty:
+        dataHoje = datetime.today() - timedelta(days=dia_atraso)
+        dataHoje = dataHoje.strftime('%m-%d-%Y')
+        url = "https://olinda.bcb.gov.br/olinda/servico/PTAX/versao/v1/odata/CotacaoMoedaDia(moeda='USD',dataCotacao='" + dataHoje + "')?&$top=100&$format=json&$select=paridadeCompra,paridadeVenda,cotacaoCompra,cotacaoVenda,dataHoraCotacao,tipoBoletim"
+        base_chk1 = pd.read_json(url)
+        base_chk1 = pd.json_normalize(base_chk1['value'])
+        base_chk = pd.DataFrame(base_chk1)
+        dia_atraso = dia_atraso + 1
+        if not base_chk.empty:
+            break
 
 #### FORM ####
 
